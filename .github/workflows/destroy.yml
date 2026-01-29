@@ -1,0 +1,30 @@
+name: Terraform Destroy
+
+on:
+  workflow_dispatch:
+
+env:
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: .
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_KEY }}
+
+      - name: Terraform Init
+        run: terraform init -reconfigure
+
+      - name: Terraform Destroy (dev)
+        run: terraform destroy -auto-approve -var-file=envs/dev.tfvars
